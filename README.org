@@ -1,0 +1,22 @@
+#+TITLE: descripy
+#+SUBTITLE: the descriptor-as-seed
+
+descripy is a small, pure Python library that fuses a configuration's
+specification and its receipt into one serializable object — and records
+the /provenance of belief/ behind each value, not merely the value
+itself.
+
+Its load-bearing discipline is *record, don't enforce*: it records,
+serializes, and computes over belief data, but interprets nothing and
+enforces nothing. The honest answer to "what can this library do to me?"
+stays "nothing — it only computes and returns."
+
+See [[file:system.md][system.md]] for the full description, the
+two-package architecture, and the organisational context. The design
+contract is the manifesto =descripy-the-descriptor-as-seed.org= in the
+parent =mayalucia= repo; the build briefing is WP-0151.
+
+* Status
+
+Commissioned, not yet built. The dwelling and guardian (=aledia=) exist;
+the substrate is imported and built under WP-0151.

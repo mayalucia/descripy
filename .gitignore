@@ -1,0 +1,18 @@
+# CLAUDE.md — rendered artefact, deployed from .guardian/CLAUDE.md
+/CLAUDE.md
+!.guardian/CLAUDE.md
+
+# sūtra relay clone (organisational messaging)
+.sutra/
+
+# caryaview / camp worktrees
+.camps/
+
+# python build + cache detritus
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.venv/
+build/
+dist/
