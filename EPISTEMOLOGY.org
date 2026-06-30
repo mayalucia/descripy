@@ -208,6 +208,13 @@ so moving it to =serialize.py= would re-introduce the cycle there);
 =serialize.py= will absorb it once it also hosts the receipt normalizer
 that imports both. Dependency, not topic, sets the boundary.
 
+/Carve note (2026-06-30, step 2 — nothing.py promoted):/ =NA= moved from
+=utils/nothing.py= to =descripy/nothing.py= — core, not util, because it
+sits on the seed path and is exported. It still leans on
+=utils.singleton.Singleton= (core may use a util; a util must not need
+core). Three importers updated (=struct=, =config=, =test_substrate=);
+=descripy.NA= still resolves; 30 tests green.
+
 ** Public API (what `import descripy` should expose)
 
 Driven by use (the spike needed three) plus the named surfaces the

@@ -23,7 +23,7 @@ from descripy.field import (
     MustBeProvidedAtInitialization,
 )
 from descripy.utils import bounce, slither, load_yaml
-from descripy.utils.nothing import NA
+from descripy.nothing import NA
 
 
 def serialize_value(v, na="null"):

@@ -8,7 +8,7 @@ from descripy.struct import (serialize_value, field, lazyfield, field_of_type,
                              Struct, section, FieldError,
                              MustBeProvidedAtInitialization)
 from descripy.record import Record
-from descripy.utils.nothing import NA
+from descripy.nothing import NA
 
 
 class ParamError(FieldError):

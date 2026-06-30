@@ -23,7 +23,7 @@ from descripy.struct import (
     MustBeProvidedAtInitialization,
     FieldError,
 )
-from descripy.utils.nothing import NA
+from descripy.nothing import NA
 
 
 # --------------------------------------------------------------------------

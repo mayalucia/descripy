@@ -1,8 +1,18 @@
-"""Nothing can be several things."""
+"""Nothing can be several things.
 
+`NA` is descripy's explicit absence: a falsy, empty, callable singleton
+that is nonetheless `is not None` — so a recorded "not available" survives
+the `v is not None` serialization filter and is rendered explicitly (as
+`"null"` or dropped) by `serialize_value`, rather than silently vanishing.
+
+This is core, not a util: it sits on the seed path and is part of the
+public surface. It leans on `Singleton` from utils (core may use a util;
+a util must never need core).
+"""
 from collections.abc import Mapping
 
-from .singleton import Singleton
+from descripy.utils.singleton import Singleton
+
 
 class NullType(Singleton, Mapping):
     """..."""
