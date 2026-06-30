@@ -192,11 +192,30 @@ reference package.
 :   field.py      # the descriptor: field, lazyfield, field_of_type   (was struct.py, part 1)
 :   struct.py     # the container: Struct, section, serialize_value    (was struct.py, part 2)
 :   config.py     # Config, parameter — the user-facing config object
-:   serialize.py  # the receipt normalizer (from the spike); serialize_value to move here
-:   status.py     # the four standings (known/inferred/speculated/borrowed) as data
-:   belief.py     # Believed + the attributed-turn schema — CORE, exported
-:   nothing.py    # NA  (promoted out of utils — it is core, not a util)
-:   _attic/       # entity.py, record.struct(), serialize_doesnt_work_for_nested — speculated, parked
+:   serialize.py  # the receipt normalizer (from the spike); serialize_value to move here  [DEFERRED]
+:   status.py     # the four standings (known/inferred/speculated/borrowed) as data        [DEFERRED]
+:   belief.py     # Believed + the attributed-turn schema — CORE, exported                 [NEXT]
+:   nothing.py    # NA  (promoted out of utils — it is core, not a util)                    [DONE]
+:   _attic/       # entity.py, record.struct(), serialize_doesnt_work_for_nested — parked   [DONE]
+
+/Revision (2026-06-30): status.py is the thin end of belief, not a/
+/standalone./ The carve scaffolded =status.py= as a bare enum of the four
+standings — and immediately hit the question that should have been asked
+first: /what object carries a standing, and how?/ The substrate has no
+attachment point. A standing is a fact about a /value/ (=dt=0.025= is
+=borrowed=), and a value can only change instance-by-instance — so the
+standing is instance data, not class data. The only honest carrier is a
+/value-wrapper/, which is exactly what =Believed= already is: a value
+transparent for computation, carrying provenance beside it. A standing is
+just a /thinner provenance/ — one tag where =Believed= has a whole
+conversation. So =status.py= must not be defined in the abstract; it is
+the atom that =belief.py= is the molecule of, and it should be /extracted
+from belief by use/, not invented ahead of a consumer. Defining it now
+would repeat the phantom-export sin step 3 just removed (a name with no
+caller). =status.py= is therefore deferred until =belief.py= reveals the
+attachment; =serialize.py= likewise waits on the receipt normalizer that
+needs both =Struct= and the normalizer together. Build-by-use, applied to
+descripy's own carve.
 
 /Carve note (2026-06-30, step 1 — struct.py split done):/ =field.py= and
 =struct.py= are separated; all 30 tests green. The =field -> Struct= cycle
