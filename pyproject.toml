@@ -1,0 +1,20 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "descripy"
+version = "0.0.1"
+description = "Descriptor-as-seed: record the provenance of belief behind a value, not merely the value."
+readme = "README.org"
+requires-python = ">=3.9"
+dependencies = [
+    "lazy",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+dev = ["pytest"]
+
+[tool.setuptools.packages.find]
+include = ["descripy*"]
