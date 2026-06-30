@@ -1,0 +1,228 @@
+#+title: descripy — the epistemology, and how it structures the code
+#+date: 2026-06-30
+#+author: mayadev (caryaview-avatar), with mu2tau
+
+* Why this document exists
+
+descripy is a tool for recording /how a value came to be believed/. So
+before we restructure its code we state its theory of knowledge — and
+then we let that theory cut the code into modules and fix the public API.
+The tool's first act of provenance is on itself: descripy's own
+epistemology becomes the lens we rebuild descripy through.
+
+This document is therefore /both/ discursive (a theory we reason through)
+and generative (its last section is the module layout and the public API,
+derived — not decorated — from the theory). It is downstream of the
+design contract
+(=domains/bravli/codev/principles/descripy-the-descriptor-as-seed.org=)
+and of the first build-by-use spike (=examples/=, =examples/LEARNINGS.org=).
+
+* Part A — The epistemology of the tool
+
+** The shift: beliefs about values, not values
+
+Industrial provenance records =dt = 0.025=. descripy records =dt = 0.025=
+/and how that came to be believed/ — who proposed it, who dissented, what
+was decided, what stays open. The unit of knowledge is not the value but
+the /belief about the value/. (Manifesto, "Provenance of belief, not
+merely provenance of value.")
+
+** The four standings a value can hold
+
+A value carries its /epistemic status/ — its honesty about itself
+(manifesto §2):
+
+- *known* — established; e.g. a measured or reference-fixed quantity.
+- *inferred* — derived from other knowns by a stated step.
+- *speculated* — a guess we should sweep / revisit.
+- *borrowed-from-reference* — taken from an external source we are
+  reproducing (e.g. =dt=0.025= from the NEURON reference, =diam= from
+  Hay 2011).
+
+This is "separate known from inferred from speculated" made /structural/,
+not advisory. The config does not pretend every number is equally solid.
+
+** Two axes of knowledge descripy keeps distinct
+
+The spike surfaced a second, orthogonal distinction (LEARNINGS.org), which
+the four standings above do not capture and must not be conflated with:
+
+- *intent vs consequence.* /Intent/ is what a mind chose (=L=10=,
+  =dt=0.025=, =pas.g=0.0001=). /Consequence/ is what the world then
+  computed (=Ra=35.4=, the voltage trace, the =psection()= receipt). The
+  lean seed records intent; germination /re-derives/ consequence; the two
+  meeting again is the verification.
+
+So a value sits at the crossing of two axes:
+  - /standing/  : known | inferred | speculated | borrowed   (how sure)
+  - /role/      : intent | consequence                        (chosen vs computed)
+
+=dt=0.025= is *borrowed* (standing) and *intent* (role). =Ra=35.4= is
+*known* (a NEURON default) and *consequence* (role). Keeping these axes
+separate is the heart of descripy's epistemology.
+
+** The seed, not the archive
+
+A record is kept not for audit but as /material for regeneration/
+(manifesto, "The record as a seed, not an archive"). The test of "did we
+record enough?" is the *legibility / cold-regeneration* test: a mind who
+was not present, given only the serialized bytes, can regenerate the gist.
+Anything that does not help that regeneration is noise.
+
+This makes regeneration descripy's criterion of /truth-carrying/: a seed
+is adequate iff its consequence can be re-derived from its recorded
+intent and a recorded environment. (The spike's environment-relativity
+finding: the oracle is only valid against the environment that produced
+it.)
+
+** Mechanism, not policy — the boundary of what descripy may know
+
+descripy /records, serializes, computes/ over belief data. It /interprets
+nothing, enforces nothing/ (manifesto, "Governing principle: mechanism,
+not policy"). Gates, guides, approvals, regeneration-as-workflow are
+/policy/ and live in a reference package, not the substrate. The honest
+answer to "what can this library do to me?" is "nothing — it only
+computes and returns."
+
+Epistemically: descripy may know /that/ a value is speculated; it may not
+decide /what to do/ about a speculated value. The first is a fact it
+records; the second is a judgement it must refuse.
+
+* Part B — The epistemology applied to descripy's own code
+
+We now turn descripy's four standings onto the substrate itself. For each
+piece of =descripy/= we ask: do we *know* its contract (it is exercised,
+its behavior is clear), do we *infer* it (it looks load-bearing but is
+untested / undocumented), or are we *speculating* (pasted, opaque, maybe
+vestigial)?
+
+The spike already drew the first boundary by /use/: the entire
+prototype — soma, seed, germinate, belief, 12 tests — imports exactly
+three names: =parameter=, =lazyfield=, =Config=, which transitively need
+=field=, =Struct=, =section=, =serialize_value=, =NA=.
+
+|-----------------------------------------+------------+------------------------------------------|
+| piece                                   | standing   | evidence                                 |
+|-----------------------------------------+------------+------------------------------------------|
+| =field= (struct.py)                       | known      | get/set/validation/default now pinned    |
+|                                         |            | (tests/test_substrate.py)                |
+|-----------------------------------------+------------+------------------------------------------|
+| =lazyfield= (struct.py)                   | known      | memoization contract pinned (computed    |
+|                                         |            | once, deferred at init)                  |
+|-----------------------------------------+------------+------------------------------------------|
+| =Struct= (struct.py)                      | known      | collect_elements/field_values/serialize  |
+|                                         |            | (none-drops/NA-keeps) pinned             |
+|-----------------------------------------+------------+------------------------------------------|
+| =section= (struct.py)                     | speculated | nesting; spike used flat configs only    |
+|                                         |            | — not exercised                          |
+|-----------------------------------------+------------+------------------------------------------|
+| =serialize_value=                         | known      | NA(null/None)/Path/Enum/Struct/scalar    |
+|                                         |            | cases pinned (test_substrate.py)         |
+|-----------------------------------------+------------+------------------------------------------|
+| =field.__get__= line-90 fallthrough       | speculated | dead branch: required-field invariant is |
+| / =field.__set__delegated=                 |            | constructor-enforced, so unreachable —   |
+|                                         |            | cut on carve                             |
+|-----------------------------------------+------------+------------------------------------------|
+| =NA= (utils/nothing.py)                   | known      | small, clear, exercised on the seed path |
+|-----------------------------------------+------------+------------------------------------------|
+| =parameter= (config.py)                   | known      | exercised throughout the spike           |
+|-----------------------------------------+------------+------------------------------------------|
+| =Config= (config.py)                      | known      | exercised throughout the spike           |
+|-----------------------------------------+------------+------------------------------------------|
+| =Config.serialize=                        | known      | exercised (lean seed);                   |
+|                                         |            | behavior pinned by spike tests           |
+|-----------------------------------------+------------+------------------------------------------|
+| =Config.serialize_doesnt_work_for_nested= | speculated | name admits it; not on any green path    |
+|-----------------------------------------+------------+------------------------------------------|
+| =record.py= =Record=                        | speculated | not imported by the spike                |
+|-----------------------------------------+------------+------------------------------------------|
+| =record.py= =struct()=                      | speculated | not imported by anything                 |
+|-----------------------------------------+------------+------------------------------------------|
+| =entity.py= (Entity/Component)            | speculated | not imported by the spike;               |
+|                                         |            | may be where descripy is *going*           |
+|-----------------------------------------+------------+------------------------------------------|
+| =utils/name_things.bounce=                | speculated | =bounce()= has a latent bug                |
+|                                         |            | (calls snake_case as a function)         |
+|-----------------------------------------+------------+------------------------------------------|
+
+*The rule this map yields:* characterization tests are urgent exactly for
+the /inferred/ rows (pin them before any edit), free to cut for the
+/speculated/ rows (history preserves them), and safe to leave for the
+/known/ rows (the spike already pins them).
+
+/Update (2026-06-30):/ the four /inferred/ rows (=field=, =lazyfield=,
+=Struct=, =serialize_value=) are now pinned by =tests/test_substrate.py=
+(18 characterization tests) and promoted to /known/. Pinning them also
+surfaced two /dead branches/ — =field.__get__='s line-90 =ValueError=
+fallthrough and =field.__set__delegated= — both unreachable because the
+required-field invariant is enforced in the constructor, not the getter.
+The carve may delete them. With the trunk now /known/, the urgent-test
+gate is cleared and Part C's restructure may proceed.
+
+This is descripy's thesis used as method: we are recording what we /know/
+vs /infer/ vs /speculate/ about descripy's own parts, and letting that
+standing decide the action — exactly what the tool asks its users to do
+with their values.
+
+* Part C — The generative cut (module layout + public API)
+
+The two axes (standing × role) and the mechanism/policy boundary force a
+shape. The substrate holds only what is /mechanism/; standing and role
+are /data the substrate carries/, never logic it acts on.
+
+** The belief layer is core, and exported (resolved)
+
+- voice: mu2tau (human)
+- decision: =belief.py= ships /in/ descripy and is exported by default.
+
+The mechanism/policy boundary, applied reflexively: withholding belief to
+stay "neutral" would itself be a policy ("you may not record dissent
+unless you opt in at import"). So the substrate /offers/ the belief
+mechanism — =Believed=, the attributed-turn schema, serialization of
+turns — and stays silent on whether you must use it. *The opt-in happens
+when the programmer uses it*, not at import. A config with no turns is not
+descripy refusing belief; it is a user who recorded none. What stays out
+of the substrate is only the /elicitation/ workflow (prompting for
+dissent, gating on open questions) — that is policy, and lives in a
+reference package.
+
+** Module layout (derived from Part A/B + the decision above)
+
+: descripy/
+:   field.py      # the descriptor: field, lazyfield, field_of_type   (was struct.py, part 1)
+:   struct.py     # the container: Struct, section, serialize_value    (was struct.py, part 2)
+:   config.py     # Config, parameter — the user-facing config object
+:   serialize.py  # the receipt normalizer (from the spike); serialize_value to move here
+:   status.py     # the four standings (known/inferred/speculated/borrowed) as data
+:   belief.py     # Believed + the attributed-turn schema — CORE, exported
+:   nothing.py    # NA  (promoted out of utils — it is core, not a util)
+:   _attic/       # entity.py, record.struct(), serialize_doesnt_work_for_nested — speculated, parked
+
+/Carve note (2026-06-30, step 1 — struct.py split done):/ =field.py= and
+=struct.py= are separated; all 30 tests green. The =field -> Struct= cycle
+(=field.validate= type-guards on =Struct=) is broken with a function-local
+import inside =validate=, so =field.py= carries no module-level dependency
+on the container — the descriptor stays the dependency leaf.
+=serialize_value= /stays in struct.py/ for now (it dispatches on =Struct=,
+so moving it to =serialize.py= would re-introduce the cycle there);
+=serialize.py= will absorb it once it also hosts the receipt normalizer
+that imports both. Dependency, not topic, sets the boundary.
+
+** Public API (what `import descripy` should expose)
+
+Driven by use (the spike needed three) plus the named surfaces the
+manifesto commits to, plus the belief layer (core, per the decision). The
+public surface:
+
+: from descripy import (
+:     Config, parameter, field, lazyfield, section,   # describe
+:     Struct, NA,                                      # substrate primitives
+:     serialize_value,                                 # serialize
+:     Believed,                                        # belief — offered, never required
+:     # status: the four standings as values, once Part A §"standings" lands
+: )
+
+Everything in =_attic/= is /not/ exported. The public surface is exactly
+what is *known* or deliberately *promoted from inferred-with-tests* —
+never what is *speculated*. =Believed= is exported as /mechanism/: present
+in the surface, used at the programmer's discretion.
