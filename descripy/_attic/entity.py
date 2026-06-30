@@ -13,7 +13,7 @@
 """Define a configurable Entity.
 """
 from descripy.config import (Path, Enum, lazy,
-                             NA, Record,
+                             NA,
                              serialize_value, field, lazyfield, field_of_type, parameter,
                              Struct, Config, section as config_section,
                              FieldError, ParamError, MustBeProvidedAtInitialization)

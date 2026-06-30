@@ -7,7 +7,6 @@ from lazy import lazy
 from descripy.struct import (serialize_value, field, lazyfield, field_of_type,
                              Struct, section, FieldError,
                              MustBeProvidedAtInitialization)
-from descripy.record import Record
 from descripy.nothing import NA
 
 
@@ -92,21 +91,6 @@ class Config(Struct):
         element_types = element_types or [field]
         return {k: v for et in element_types
                 for k, v in value.get_element_values(of_type=et).items()}
-
-
-    def serialize_doesnt_work_for_nested(self, to_output=None):
-        """Serialize sections and parameters to an output format
-        """
-        parameter_values = self.parameter_values.items()
-        data = {p: serialize_value(v) for p, v in parameter_values}
-
-        element_types = [parameter, section]
-        section_values = {s: self.get_section(s, element_types)
-                          for s in self.sections}.items()
-        data.update({s: serialize_value(v) for s, v in section_values})
-        if not to_output:
-            return data
-        return to_output(data)
 
 
     def _serialize_sections(self, keep_na):

@@ -215,6 +215,16 @@ sits on the seed path and is exported. It still leans on
 core). Three importers updated (=struct=, =config=, =test_substrate=);
 =descripy.NA= still resolves; 30 tests green.
 
+/Carve note (2026-06-30, step 3 — speculated pieces parked):/ =record.py=
+and =entity.py= moved to =descripy/_attic/= (via =git mv=, lineage kept);
+=Config.serialize_doesnt_work_for_nested= deleted (broken-by-name, on no
+green path — history preserves it). =Record= was a phantom export
+(=record -> config -> entity -> __init__=, never called); removing it made
+=__init__.py= honest. The package now re-exports /only the known surface/
+— =Config, parameter, field, lazyfield, field_of_type, section, Struct,
+NA, serialize_value= (+ the error types). The attic is reachable only by
+explicit =descripy._attic.*= import. 30 tests green.
+
 ** Public API (what `import descripy` should expose)
 
 Driven by use (the spike needed three) plus the named surfaces the

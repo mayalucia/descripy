@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """A record of dynamically named key-value pairs, that will act like a Python class instance.
 """
-from .struct import  NA, field, Struct
+from descripy.struct import NA, field, Struct
 
 def Record(Name, doc="", **kwargs):
     """A record of key-value pairs, as a Python class."""
