@@ -25,35 +25,8 @@ The primitives, earned by the cold-regeneration test (manifesto):
     did the flagged artifact materialize? (Our lean seed already carries
     this as seed["expect"]; the belief can point at it.)
 """
+from descripy.belief import Believed
 from examples.soma_seed import make_seed
-
-
-class Believed:
-    """A value carried together with the belief about it.
-
-    The resolved scalar is transparent for computation; the provenance is
-    queryable but never in the way.
-    """
-    def __init__(self, resolved, turns, open_question=None, outcome=None):
-        self._resolved = resolved
-        self.turns = turns
-        self.open_question = open_question
-        self.outcome = outcome
-
-    @property
-    def value(self):
-        """The resolved scalar — what computation sees."""
-        return self._resolved
-
-    # transparency: behave like the underlying scalar for arithmetic/compare
-    def __float__(self):
-        return float(self._resolved)
-
-    def __eq__(self, other):
-        return self._resolved == (other.value if isinstance(other, Believed) else other)
-
-    def __repr__(self):
-        return f"Believed({self._resolved!r}; {len(self.turns)} turns)"
 
 
 def dt_belief():

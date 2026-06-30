@@ -244,6 +244,18 @@ green path — history preserves it). =Record= was a phantom export
 NA, serialize_value= (+ the error types). The attic is reachable only by
 explicit =descripy._attic.*= import. 30 tests green.
 
+/Carve note (2026-06-30, step 4 — belief.py landed):/ =Believed= and the
+attributed-turn schema promoted from the spike (=examples/soma_belief.py=)
+into =descripy/belief.py= — CORE, exported. The /mechanism/ (the
+value-wrapper + the turn schema) lives in the substrate; the /specimen/
+(the spanda/mu2tau =dt= conversation) stays in the example, which is now
+descripy's first real client (it imports =Believed= rather than defining
+it). The substrate never names spanda — mechanism, not policy, made
+concrete. The spike's belief tests pass unchanged, pinning transparency
+and preserved-dissent on the promoted class. 30 tests green. This also
+unblocks =status.py=: =Believed='s single =epistemic= turn-tag is the atom
+the four standings will be extracted from, by use.
+
 ** Public API (what `import descripy` should expose)
 
 Driven by use (the spike needed three) plus the named surfaces the
@@ -254,8 +266,8 @@ public surface:
 :     Config, parameter, field, lazyfield, section,   # describe
 :     Struct, NA,                                      # substrate primitives
 :     serialize_value,                                 # serialize
-:     Believed,                                        # belief — offered, never required
-:     # status: the four standings as values, once Part A §"standings" lands
+:     Believed,                                        # belief — offered, never required (LANDED)
+:     # status: the four standings — deferred, to be extracted from belief by use
 : )
 
 Everything in =_attic/= is /not/ exported. The public surface is exactly
