@@ -1,0 +1,99 @@
+#+title: descripy — learnings from the first build-by-use spike
+#+date: 2026-06-30
+#+author: mayadev (caryaview-avatar)
+
+* What this is
+
+The first working prototype of revived descripy, built /by use/ on a
+real problem (a single-compartment passive soma in NEURON) rather than
+by writing more design. Findings here are earned from the running code in
+this =examples/= directory and should inform the next revision of the
+design contract
+(=domains/bravli/codev/principles/descripy-the-descriptor-as-seed.org=).
+
+The vertical slice, all green (12 tests under py311 + NEURON):
+
+: soma_passive.py   descriptor -> NEURON -> run -> result   (the spike)
+: soma_seed.py      live soma  -> lean seed (intent only)   (serialize)
+: soma_germinate.py seed       -> live soma -> verify receipt (acceptance gate)
+: soma_belief.py    dt=0.025 contested turn on the real value (belief layer)
+
+* Findings
+
+** The seed-primary reframe is real, and the round-trip is the test
+The user's reframe held under use: the seed is primary; the Python
+descriptor class (=Section= / =Simulation=) is what the seed /germinates
+into/ — an executable output. Verification is receipt-equality:
+germinate from the seed, run, compare =stable_receipt()= to the seed's
+recorded =expect=. =test_germination_round_trip= passes. The "Python
+class as executable output, a necessity for verifiable results" is now
+demonstrated, not asserted.
+
+** "Strip BBP cruft" was a one-line edit, not a refactor
+The manifesto's archaeology was exact. The /only/ BBP coupling in the
+substrate was =struct.py:9= =from connsense.io import logging= (used at
+one live line, =LOG.debug=). Replaced with stdlib =logging= +
+=getLogger=. Everything else (=lazy=, =yaml=) is genuinely
+general-purpose. WP-0151 task 02 ("strip BBP cruft") collapses to this.
+
+** =serialize()= captures /declared/ state, not /configured/ state
+Sharp edge found by use: =Config.serialize()= faithfully records the
+declared =@parameter= fields (=L, diam, nseg, cm=) but silently drops the
+=pas= mechanism (=g, e=), because that biophysics is inserted
+imperatively (=insert_passive()=) and lives only in NEURON. A seed from
+=serialize()= alone would germinate a /different cell/ (no leak). This is
+the real "nested" wall — sharper than =serialize_doesnt_work_for_nested='s
+name suggests. *Design implication:* mechanisms want to be /descriptor
+state/ (a =section= of the config), not an imperative side-effect, so the
+seed can capture them without a hand-written =mechanisms= dict. Currently
+=soma_seed.py= restates =pas g/e= by hand — a smell that points straight
+at this.
+
+** The lean-seed cut works: intent vs consequence
+The seed records /intent/ (params + mechanisms + sim) only; germination
+/re-derives/ the consequence. Proof: =Ra=35.4= is a NEURON default never
+declared as intent — it is absent from the seed's =section.params= but
+present in =expect=, and germination reproduces it exactly. This is the
+cold-regeneration cut working on a real cell: everything in =expect= not
+in the seed must be deterministically re-derivable, or the gate catches
+the divergence.
+
+** "Germinate and run to verify" is environment-relative
+NEURON's =hoc= is a compiled C-extension bound to /one/ interpreter
+(py311 here). The round-trip is only meaningful against a recorded
+environment. This is itself an instance of the spec-receipt fusion: the
+seed's =expect= is only a valid oracle /relative to the environment that
+produced it/. *Open question for the design:* should a seed record its
+environment fingerprint (interpreter, NEURON version) alongside =expect=?
+
+** The belief layer holds both faces at once
+=Believed.value= returns the resolved scalar (=0.025=) transparently —
+arithmetic and comparison work with no unwrap ceremony (=float(b)*4=) —
+while =b.turns= keeps the overruled dissent (spanda's =0.01=) attributed
+and queryable. The manifesto's load-bearing claim ("neither subordinate"
+is literally true because the overruled voice is not deleted) is now a
+data structure on a real NEURON parameter. Both invariants are tested
+(=test_value_is_transparent=, =test_dissent_is_preserved=).
+
+** The cold reader's demand is already satisfied by the lean seed
+The manifesto's cold-regeneration oracle independently asked for an
+/outcome/ field ("did the flagged dt artifact materialize?"). Our lean
+seed's =expect= /is/ that field: =soma_belief.dt_belief()= wires
+=outcome = make_seed()["expect"]=, so the contested =dt=0.025= belief
+points at the very receipt it produced. The spec-receipt fusion is not a
+future surface — it fell out of the lean-seed design for free.
+
+* What to carry into the next design revision
+
+1. Promote mechanisms from imperative insert to /descriptor sections/ so
+   the seed captures them without hand-restatement (closes the
+   serialize-drops-mechanism gap).
+2. Decide the environment-fingerprint question for =expect= (the
+   round-trip is environment-relative).
+3. The attributed-turn schema used here (=voice {name,kind}, date, value,
+   rationale, epistemic, responds-to, resolved-by=) survived first use —
+   propose it as the earned minimal schema, having now regenerated a real
+   contested value.
+4. =stable_receipt()='s projection (dropping =hoc_internal_name= etc.) is
+   the seam where "what is the result we verify" gets answered concretely
+   — generalize it into a substrate surface (a receipt normalizer).

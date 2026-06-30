@@ -18,5 +18,17 @@ parent =mayalucia= repo; the build briefing is WP-0151.
 
 * Status
 
-Commissioned, not yet built. The dwelling and guardian (=aledia=) exist;
-the substrate is imported and built under WP-0151.
+First spike built (2026-06-30), by /use/ on a real problem. The substrate
+is imported and BBP-decoupled; a single-compartment passive soma is
+modelled, serialized to a lean seed, germinated back, and verified by
+receipt-equality; the =dt=0.025= contested turn is recorded in the belief
+layer with its dissent preserved. See =examples/= (runnable) and
+=examples/LEARNINGS.org= (findings for the next design revision).
+
+Run the suite (NEURON is bound to the py311 interpreter on this machine):
+
+#+begin_src sh
+PYTHONPATH=. python -m pytest tests/
+#+end_src
+
+The dwelling and guardian (=aledia=) exist; build continues under WP-0151.
