@@ -9,4 +9,7 @@ Parked here:
   record.py   — Record(), struct(): dynamic Struct factories, unexercised.
   entity.py   — Entity / Component: may be where descripy is going, but
                 untouched by the spike.
+  task.py     — Task: the run-receipt (status/output/update) lifted off the
+                old Config in the recipe/model carve. Deferred, not built —
+                awaiting a real run-consumer (build-by-use).
 """

@@ -10,5 +10,7 @@ and is deliberately not exported.
 from .nothing import NA
 from .field import field, lazyfield, field_of_type, FieldError, MustBeProvidedAtInitialization
 from .struct import Struct, section, serialize_value
-from .config import Config, parameter, ParamError
+from .param import parameter, ParamError
+from .model import ModelRecipe, Model
+from .config import Config
 from .belief import Believed

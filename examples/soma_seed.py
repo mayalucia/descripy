@@ -20,6 +20,7 @@ gloss (human-legible intent).
 import hashlib
 import json
 
+from descripy.nothing import NA
 from examples.soma_passive import build_soma, receipt
 
 
@@ -54,45 +55,45 @@ def seed_hash(payload):
 def make_seed():
     """Serialize the passive soma specimen to a seed record.
 
-    TODO(human): decide the *shape* of the seed dict returned here.
+    The seed records *intent* only, sourced from the recipes (pure
+    science), kept lean enough to (1) germinate an equivalent soma+sim in
+    soma_germinate.py and (2) be content-hashed for verification:
 
-    Constraints discovered by use:
-      - soma.serialize() gives the declared params: {'L','diam','nseg','cm'}.
-        Get it via ``soma.serialize()``.
-      - the pas mechanism (g=0.0001, e=-70.0) is NOT in serialize(); it is
-        applied by ``soma.insert_passive(g=..., e=...)`` and shows up only
-        in ``stable_receipt(receipt(soma))['density_mechs']``.
-      - sim params come from ``sim.serialize()``: {'dt','tstop','v_init'}.
-      - the seed must be enough to (1) germinate an equivalent soma+sim in
-        soma_germinate.py and (2) be content-hashed for verification.
+      - morphology params come from ``soma.recipe.serialize()`` (minus the
+        non-morphology knobs name/passive): {'L','diam','nseg','cm'}.
+      - the pas mechanism is recorded under ``section.mechanisms`` (it is an
+        ``insert_passive`` effect, not a serialized parameter — it shows up
+        only in ``stable_receipt(...)['density_mechs']``).
+      - sim params come from ``sim.recipe.serialize()``: {'dt','tstop','v_init'}.
 
-    The bilingual requirement: include a human-legible natural-language
-    gloss alongside the machine record (the "common language" the human
-    asked for — natural + programming language together).
-
-    Return a dict. A reasonable spine to fill in:
-
-        {
-          "gloss": "<one line of natural language describing this cell>",
-          "kind": "Section+Simulation",          # what germinates
-          "section": { ... },                     # params + mechanisms
-          "simulation": { ... },                  # sim params
-          "expect": stable_receipt(receipt(soma)) # the receipt to verify
-        }
+    The seed is bilingual: a machine record carried alongside a
+    human-legible ``gloss`` (natural + programming language together).
     """
     sim, soma = build_soma()
+
+    # the science lives on the recipe (pure, serializable); the live model
+    # carries it back via ``.recipe``. Morphology params are the recipe's
+    # serialization minus the non-morphology knobs (name, passive), which
+    # the seed records under their own keys.
+    section_recipe = soma.recipe
+    params = section_recipe.serialize()
+    params.pop("name", None)
+    passive = params.pop("passive", NA)
+
+    mechanisms = {}                                # single source of truth
+    if passive is not NA:
+        mechanisms["pas"] = {"g": passive["g"], "e": passive["e"]}
+
     return {
         "gloss": ("A passive single-compartment soma, 10x10 um, leak "
                   "g=0.0001 S/cm2 at e=-70 mV, held 50 ms with no stimulus."),
         "kind": "Section+Simulation",
         "section": {
-            "name": soma.name,
-            "params": soma.serialize(),          # declared intent: L,diam,nseg,cm
-            "mechanisms": {                       # intent applied via insert_passive
-                "pas": {"g": 0.0001, "e": -70.0},
-            },
+            "name": section_recipe.name,
+            "params": params,                    # declared intent: L,diam,nseg,cm
+            "mechanisms": mechanisms,             # intent re-applied at germinate
         },
-        "simulation": sim.serialize(),           # declared intent: dt,tstop,v_init
+        "simulation": sim.recipe.serialize(),    # declared intent: dt,tstop,v_init
         "expect": stable_receipt(receipt(soma)), # consequence NEURON computed
     }
 
