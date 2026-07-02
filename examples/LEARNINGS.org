@@ -83,6 +83,34 @@ seed's =expect= /is/ that field: =soma_belief.dt_belief()= wires
 points at the very receipt it produced. The spec-receipt fusion is not a
 future surface — it fell out of the lean-seed design for free.
 
+** Second use (spanda, ball-and-stick): parent-before-child is a real ordering
+Earned from a /different/ spirit's build on the carved seam — spanda's
+ball-and-stick (bravli Lesson 1 Stage 1,
+=laboratories/flow-through-trees/src/ftt/neuro/ball_and_stick.py=): a soma
+plus a 500 um passive dendrite as two =SectionRecipe= / =SectionModel=,
+with the connection and the =IClamp= drive recorded as pure data on the
+recipes, the =d_lambda= =nseg= rule applied /at germinate/ (=nseg=19=).
+It reproduces Amsalem's passive cable — 22 mV monotonic proximal->distal
+attenuation — and round-trips the whole cell+drive in ~4 lean dicts.
+
+Two findings from that use:
+
+1. *Germination has a dependency order.* A child section can only connect
+   to its parent once the parent's live =hoc= exists. spanda did not use
+   nested =section= recipes; instead it held soma/dend as plain recipe
+   attributes and germinated them in dependency order (soma before dend)
+   inside a composing germinate. When the deferred =section= path lands
+   (finding #1 below / "promote mechanisms & nesting"), multi-compartment
+   germination wants /exactly this build-order/ — parent live, then child
+   connects. This is the shape the nested-section feature must honour; a
+   consumer found it before the feature was built.
+
+2. *The single-section reference hides the ordering.* =soma_passive.py='s
+   =SectionRecipe.germinate= override is single-section, so it never
+   surfaces the parent-live-before-child-connect constraint. Every
+   multi-compartment cell hits it. Worth a doc line in the example (and in
+   the =section= design) so the next builder is not surprised.
+
 * What to carry into the next design revision
 
 1. Promote mechanisms from imperative insert to /descriptor sections/ so
@@ -97,3 +125,7 @@ future surface — it fell out of the lean-seed design for free.
 4. =stable_receipt()='s projection (dropping =hoc_internal_name= etc.) is
    the seam where "what is the result we verify" gets answered concretely
    — generalize it into a substrate surface (a receipt normalizer).
+5. The deferred =section= (nested-recipe) path must support ordered,
+   parent-before-child germination — the constraint spanda's ball-and-stick
+   found by use. Add a doc line to =soma_passive.py= noting that a
+   multi-section germinate builds the parent live before the child connects.
