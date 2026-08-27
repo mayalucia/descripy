@@ -16,3 +16,6 @@ __pycache__/
 .venv/
 build/
 dist/
+
+# park deposits (rite: aburaya/rites/park.md)
+.park/

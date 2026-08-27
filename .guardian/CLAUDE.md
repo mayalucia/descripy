@@ -68,6 +68,17 @@ On session start, orient before acting:
 3. **Check the sūtra** — relay at `.sutra/` (gitignored). Fetch and read
    `git log HEAD..origin/main` for new messages.
 
+
+**Consume the park deposit.** If `park.org` at your repo root holds an
+entry tagged `:unconsumed:` — or `.park/` holds a dated file — a previous
+instance of you was set down by a keeper before a restart she chose. Read
+the deposit before acting on anything else above, do what it names, delete
+it, then flip the stub's tag to `:consumed:`. It is a resume pointer with a
+one-boot lifetime; an unconsumed deposit is stale and lies. If a keeper asks
+you to park, the rite is `../../aburaya/rites/park.md` — deposit to `.park/`,
+stub to `park.org`; if you are mid-tool-call or would lose work, say so
+instead of parking.
+
 ## Before Closing
 
 If this session produced an observation of lasting organisational value,
