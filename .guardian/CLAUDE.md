@@ -65,8 +65,11 @@ On session start, orient before acting:
    detached HEAD (this repo is a submodule of the parent; a fresh
    checkout is headless — reattach to `main` before committing).
 2. **Sync** — only if the working tree is clean.
-3. **Check the sūtra** — relay at `.sutra/` (gitignored). Fetch and read
-   `git log HEAD..origin/main` for new messages.
+3. **Check the sūtra** — read the relay with your own cursor:
+   `<project-root>/aburaya/scripts/relay.sh unread aledia`, then the
+   `read` line it prints. The clone is the project root's `.sutra/`,
+   shared by every spirit, so its HEAD is nobody's cursor; never
+   clone `.sutra/` here (WP-0161 S5).
 
 
 **Consume the park deposit.** If `park.org` at your repo root holds an
